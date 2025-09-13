@@ -4,6 +4,17 @@
 # Translates clipboard content between English and Russian using OpenRouter API
 # Shows result as disappearing popup notification
 
+# Load environment variables from .env file
+if [ -f ".env" ]; then
+    export $(cat .env | grep -v '^#' | xargs)
+fi
+
+# Check if API key is set
+if [ -z "$OPENROUTER_API_KEY" ]; then
+    notify-send -t 5000 "Translation Error" "OPENROUTER_API_KEY not set. Please add it to .env file or export it."
+    exit 1
+fi
+
 # Show processing notification immediately
 notify-send -t 2000 "Translation" "Processing translation..."
 
@@ -60,7 +71,7 @@ EOF
 
 # Make API call
 RESPONSE=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completions" \
-    -H "Authorization: Bearer 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" \
+    -H "Authorization: Bearer $OPENROUTER_API_KEY" \
     -H "Content-Type: application/json" \
     -d "$JSON_PAYLOAD")
 

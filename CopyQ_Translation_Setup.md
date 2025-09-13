@@ -4,12 +4,25 @@
 
 This setup creates a CopyQ command that translates clipboard content between English and Russian using the OpenRouter API, displaying results as disappearing popup notifications.
 
+## Use Cases
+
+This translation tool is perfect for:
+
+- 📖 **Reading Articles**: Quickly translate foreign language articles while browsing
+- 📚 **Tech Documentation**: Understand technical documentation in other languages
+- 💬 **Chatting with Foreigners**: Translate messages in real-time conversations
+- 🌍 **Language Learning**: Get context examples and translations for vocabulary
+- 📝 **Content Creation**: Translate text for international audiences
+- 🔍 **Research**: Access information from non-English sources
+
 ## Prerequisites
 
 - CopyQ installed and running
 - `jq` command-line JSON processor installed
 - `notify-send` utility (usually comes with desktop environments)
+- `xclip` and `xsel` for text selection support
 - Internet connection for API calls
+- OpenRouter API key
 
 ## Installation Steps
 
@@ -26,7 +39,20 @@ sudo apt install libnotify-bin
 sudo apt install xclip xsel
 ```
 
-### 2. CopyQ Command Setup
+### 2. Setup API Key
+
+Create a `.env` file in the script directory:
+
+```bash
+# Create .env file
+cat > .env << EOF
+OPENROUTER_API_KEY=your-api-key-here
+EOF
+```
+
+Replace `your-api-key-here` with your actual OpenRouter API key.
+
+### 3. CopyQ Command Setup
 
 1. **Open CopyQ** and go to `File` → `Preferences` → `Commands`
 2. **Add New Command:**
@@ -36,7 +62,7 @@ sudo apt install xclip xsel
 
    **Command Name:** `Translate EN↔RU`
 
-   **Command:** `/media/sevocrear/data/Crypto_Dir/ATOM/researches/copyq_translate.sh`
+   **Command:** `/path/to/your/copyq_translate.sh`
 
    **Shortcut:** Set a keyboard shortcut (e.g., `Ctrl+Shift+T`)
 
@@ -62,7 +88,7 @@ If you prefer to create the command directly in CopyQ:
 ```json
 {
     "name": "Translate EN↔RU",
-    "command": "/media/sevocrear/data/Crypto_Dir/ATOM/researches/copyq_translate.sh",
+    "command": "/path/to/your/copyq_translate.sh",
     "shortcut": "Ctrl+Shift+T",
     "description": "Translate clipboard content between English and Russian",
     "input": "text/plain",
@@ -74,7 +100,7 @@ If you prefer to create the command directly in CopyQ:
 
 ## Usage
 
-### Method 1: Keyboard Shortcut (Recommended)
+### Quick Translation
 
 1. **Select any text** (highlight it with mouse)
 2. Press `Ctrl+Shift+T` (or your assigned shortcut)
@@ -82,17 +108,10 @@ If you prefer to create the command directly in CopyQ:
 4. Translation is also added to CopyQ history
 5. **No need to copy text first!**
 
-### Method 2: Context Menu
+### Alternative Methods
 
-1. Copy any text to clipboard
-2. Right-click CopyQ tray icon
-3. Select "Translate EN↔RU" from menu
-
-### Method 3: CopyQ Main Window
-
-1. Open CopyQ main window
-2. Select any text item
-3. Right-click and choose "Translate EN↔RU"
+- **Context Menu**: Right-click CopyQ tray icon → "Translate EN↔RU"
+- **CopyQ Window**: Select text item → Right-click → "Translate EN↔RU"
 
 ## Features
 
@@ -137,67 +156,62 @@ Modify the prompt in the script to support additional languages:
 ### Common Issues
 
 1. **"jq: command not found"**
-
    ```bash
    sudo apt install jq
    ```
-2. **"notify-send: command not found"**
 
+2. **"notify-send: command not found"**
    ```bash
    sudo apt install libnotify-bin
    ```
-3. **"xclip: command not found" or "xsel: command not found"**
 
+3. **"xclip: command not found" or "xsel: command not found"**
    ```bash
    sudo apt install xclip xsel
    ```
 
-4. **Permission denied**
+4. **"OPENROUTER_API_KEY not set"**
+   - Create `.env` file with your API key
+   - Or export: `export OPENROUTER_API_KEY="your-key"`
 
+5. **Permission denied**
    ```bash
-   chmod +x /media/sevocrear/data/Crypto_Dir/ATOM/researches/copyq_translate.sh
+   chmod +x /path/to/your/copyq_translate.sh
    ```
 
-5. **"Cannot connect to server! Start CopyQ server first"**
-
+6. **"Cannot connect to server! Start CopyQ server first"**
    ```bash
-   # Start CopyQ server
    copyq &
    ```
 
-6. **"Clipboard is empty" when text is selected**
-   - The script now **prioritizes selected text over clipboard content**
-   - **No need to copy text first!** Just select text and press Ctrl+Shift+T
-   - The script tries: xclip → copyq selection → xsel → clipboard (fallback)
-   - **Selected text always takes priority over clipboard**
+7. **"Clipboard is empty" when text is selected**
+   - Script prioritizes selected text over clipboard
+   - No need to copy text first! Just select and press Ctrl+Shift+T
    - Make sure CopyQ server is running: `copyq &`
 
-7. **Shortcut not working**
-   - Make sure CopyQ server is running
-   - Check that "On global shortcut" checkbox is checked in CopyQ Commands
-   - Verify the script path is correct and executable
-   - Try running the script manually first
+8. **Shortcut not working**
+   - Ensure CopyQ server is running
+   - Check "On global shortcut" is enabled in CopyQ Commands
+   - Verify script path is correct and executable
 
-8. **API errors**
-
+9. **API errors**
    - Check internet connection
-   - Verify API key is valid
-   - Check if API quota is exceeded
+   - Verify API key is valid in `.env` file
+   - Check API quota limits
 
 ### Testing the Script
 
 Test the script manually:
-
 ```bash
-/media/sevocrear/data/Crypto_Dir/ATOM/researches/copyq_translate.sh
+/path/to/your/copyq_translate.sh
 ```
 
 ## Security Notes
 
-- The API key is embedded in the script for convenience
-- For production use, consider using environment variables
-- The script only sends clipboard text to the translation API
+- API key is loaded from `.env` file (git-safe)
+- Script only sends clipboard text to translation API
 - No personal data is stored or logged
+- `.env` file is ignored by git (see `.gitignore`)
 
 ## API Information
 
@@ -206,39 +220,22 @@ Test the script manually:
 - **Endpoint:** https://openrouter.ai/api/v1/chat/completions
 - **Rate Limits:** Check OpenRouter documentation for current limits
 
-## Script Versions
+## Customization
 
-### Version 1: `copyq_translate.sh` (Full Dialog)
+### Change Notification Duration
+Edit the script and modify the `-t` parameter:
+```bash
+notify-send -t 3000 "Translation Result" "$CLEAN_TRANSLATION"
+```
 
-- Shows concise translation in popup notification (8 seconds)
-- Opens full translation in zenity dialog box (600x400 pixels)
-- Stores full translation in CopyQ history
-- **Best for:** Users who want to see full context immediately
+### Change API Model
+Edit the script and modify the model parameter:
+```bash
+"model": "nvidia/nemotron-nano-9b-v2:free",
+```
 
-### Version 2: `copyq_translate_simple.sh` (Simple Popup)
-
-- Shows only main translation in popup notification (6 seconds)
-- Stores full translation in CopyQ history
-- Shows confirmation that full translation is saved
-- **Best for:** Users who prefer minimal popups and check CopyQ for details
-
-### Choosing Your Version
-
-**Use `copyq_translate.sh` if:**
-
-- You want to see the full translation with examples immediately
-- You don't mind a dialog box appearing
-- You want comprehensive context
-
-**Use `copyq_translate_simple.sh` if:**
-
-- You prefer clean, minimal popup notifications
-- You're okay with checking CopyQ history for full details
-- You want faster, less intrusive notifications
-
-### Switching Between Versions
-
-To switch versions, simply change the command path in CopyQ:
-
-- **Full version:** `/media/sevocrear/data/Crypto_Dir/ATOM/researches/copyq_translate.sh`
-- **Simple version:** `/media/sevocrear/data/Crypto_Dir/ATOM/researches/copyq_translate_simple.sh`
+### Add More Languages
+Modify the prompt in the script:
+```bash
+"content": "Translate to Russian if input is English/other language, translate to English if input is Russian, translate to Spanish if input is German. Word: $CLIPBOARD_TEXT"
+```

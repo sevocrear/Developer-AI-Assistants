@@ -1,0 +1,39 @@
+# CopyQ Chat Assistant - Python Requirements
+# Modern, lightweight dependencies for screenshot, text capture, and web interface
+
+# Core HTTP and API
+requests>=2.31.0
+urllib3>=2.0.0
+
+# Image processing and screenshots
+Pillow>=10.0.0
+mss>=9.0.1
+
+# Clipboard and text handling
+pyperclip>=1.8.2
+
+# Input handling (for advanced features)
+pynput>=1.7.6
+
+# Web interface (lightweight)
+flask>=2.3.0
+jinja2>=3.1.0
+
+# Configuration and data handling
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+
+# Optional: Better screenshot capture
+pyautogui>=0.9.54
+
+# Optional: Enhanced web interface
+fastapi>=0.103.0
+uvicorn>=0.23.0
+
+# Development and testing
+pytest>=7.4.0
+black>=23.0.0
+flake8>=6.0.0
+
+# System utilities
+psutil>=5.9.0
