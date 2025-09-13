@@ -1,6 +1,10 @@
 #!/bin/bash
 # CopyQ Chat Command - Virtual Environment Wrapper
 
+# Change to the directory where this script is located
+cd "$(dirname "$0")"
+
+source .env
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 

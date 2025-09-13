@@ -8,7 +8,7 @@ Features:
 - Text selection and clipboard handling
 - Modern web interface
 - Image upload to temporary hosting
-- OpenRouter API integration
+- OpenRouter API integration with fallbacks
 - Session history management
 - Command-line configuration
 """
@@ -47,7 +47,7 @@ except ImportError as e:
 class Config:
     """Configuration management with environment variables and CLI args."""
     api_key: str
-    model: str = "openrouter/sonoma-sky-alpha"
+    model: str = "anthropic/claude-3.5-haiku"  # Changed default to more reliable model
     browser: str = "yandex-browser"
     port: int = 8085
     screenshot_dir: Path = Path.home() / '.copyq_screenshots'
@@ -61,20 +61,46 @@ class Config:
     @classmethod
     def from_args(cls, args: argparse.Namespace) -> 'Config':
         """Create config from command line arguments."""
-        # Load environment variables
-        load_dotenv()
+        # Load environment variables from .env file
+        env_file = Path(__file__).parent / '.env'
+        if env_file.exists():
+            print(f"📁 Loading environment from: {env_file}")
+            load_dotenv(env_file)
+        else:
+            print("⚠️ No .env file found, using system environment variables")
+            load_dotenv()  # Try to load from system environment
         
         # Get API key from args or environment
         api_key = args.api_key or os.getenv('OPENROUTER_API_KEY', '')
-        if not api_key:
-            print("❌ Error: OPENROUTER_API_KEY not provided")
-            print("💡 Set it via: export OPENROUTER_API_KEY='your-key'")
-            print("💡 Or pass: --api-key 'your-key'")
+        
+        # Check if API key is still the placeholder
+        if not api_key or api_key == 'your-api-key-here':
+            print("❌ Error: OPENROUTER_API_KEY not properly configured")
+            print("💡 Please edit the .env file and set your actual API key:")
+            print("💡 OPENROUTER_API_KEY=sk-or-your-actual-key-here")
+            print("💡 Get a free key at: https://openrouter.ai/")
+            
+            # Create .env file if it doesn't exist
+            if not env_file.exists():
+                print("📝 Creating .env file template...")
+                env_content = """# CopyQ Chat Assistant Environment Variables
+# Get your API key from: https://openrouter.ai/
+
+OPENROUTER_API_KEY=your-api-key-here
+OPENROUTER_MODEL=anthropic/claude-3.5-haiku
+COPYQ_CHAT_BROWSER=yandex-browser
+COPYQ_CHAT_PORT=8085
+"""
+                with open(env_file, 'w') as f:
+                    f.write(env_content)
+                print(f"✅ Created .env file at: {env_file}")
+                print("📝 Please edit it with your actual API key and run again")
+            
             sys.exit(1)
         
         return cls(
             api_key=api_key,
-            model=args.model or os.getenv('OPENROUTER_MODEL', 'openrouter/sonoma-sky-alpha'),
+            model=args.model or os.getenv('OPENROUTER_MODEL', 'anthropic/claude-3.5-haiku'),
             browser=args.browser or os.getenv('COPYQ_CHAT_BROWSER', 'yandex-browser'),
             port=args.port or int(os.getenv('COPYQ_CHAT_PORT', '8085'))
         )
@@ -287,74 +313,145 @@ class ImageUploader:
 
 
 class OpenRouterAPI:
-    """OpenRouter API client."""
+    """OpenRouter API client with fallback models and better error handling."""
     
     def __init__(self, api_key: str, model: str):
         self.api_key = api_key
         self.model = model
         self.base_url = "https://openrouter.ai/api/v1/chat/completions"
+        
+        # Fallback models in order of preference (free and paid)
+        self.fallback_models = [
+            'anthropic/claude-3.5-haiku',  # Reliable, fast
+            'openai/gpt-4o-mini',          # Good alternative
+            'nvidia/nemotron-nano-9b-v2:free',  # Free option
+            'meta-llama/llama-3.2-11b-vision-instruct',  # Another option
+            'anthropic/claude-3-haiku'      # Backup
+        ]
+        
+        # Validate API key on initialization
+        self._validate_api_key()
     
-    def chat_completion(self, messages: List[Dict[str, Any]], image_url: Optional[str] = None) -> Optional[str]:
-        """Send chat completion request."""
+    def _validate_api_key(self):
+        """Validate API key by making a test request."""
         try:
             headers = {
                 'Authorization': f'Bearer {self.api_key}',
                 'Content-Type': 'application/json'
             }
             
-            # Check if model supports multimodal (images)
-            multimodal_models = [
-                'anthropic/claude-3.5-sonnet',
-                'anthropic/claude-3.5-haiku',
-                'anthropic/claude-3-haiku',
-                'anthropic/claude-3-opus',
-                'openai/gpt-4o',
-                'openai/gpt-4o-mini',
-                'openai/chatgpt-4o-latest',
-                'meta-llama/llama-3.2-90b-vision-instruct',
-                'meta-llama/llama-3.2-11b-vision-instruct',
-                'x-ai/grok-2-vision-1212',
-                'openrouter/sonoma-sky-alpha'
-            ]
-            
-            # Prepare messages with image if available and model supports it
-            if image_url and messages and self.model in multimodal_models:
-                first_message = messages[0]
-                if isinstance(first_message.get('content'), str):
-                    first_message['content'] = [
-                        {'type': 'text', 'text': first_message['content']},
-                        {'type': 'image_url', 'image_url': {'url': image_url}}
-                    ]
-                print(f"🖼️ Using multimodal mode with image: {image_url[:50]}...")
-            elif image_url:
-                # Add image URL as text description for non-multimodal models
-                first_message = messages[0]
-                if isinstance(first_message.get('content'), str):
-                    first_message['content'] += f"\n\n[Screenshot available at: {image_url}]"
-                print(f"📝 Adding image URL as text description (model doesn't support multimodal)")
-            
+            # Simple test request
             data = {
-                'model': self.model,
-                'messages': messages,
+                'model': 'anthropic/claude-3.5-haiku',
+                'messages': [{'role': 'user', 'content': 'test'}],
                 'stream': False
             }
             
-            print(f"🤖 Sending request to {self.model}...")
+            response = requests.post(self.base_url, headers=headers, json=data, timeout=10)
             
-            response = requests.post(self.base_url, headers=headers, json=data, timeout=30)
-            
-            if response.status_code != 200:
-                print(f"❌ API error {response.status_code}: {response.text}")
-                return None
+            if response.status_code == 401:
+                print("❌ Invalid API key! Please check your OpenRouter API key.")
+                print("💡 Get a free key at: https://openrouter.ai/")
+                print("💡 Edit the .env file with your actual API key")
+                return False
+            elif response.status_code == 200:
+                print("✅ API key validated successfully")
+                return True
+            else:
+                print(f"⚠️ API validation returned status {response.status_code}")
+                return True  # Continue anyway, might be a temporary issue
                 
-            response.raise_for_status()
-            
-            result = response.json()
-            if 'choices' in result and len(result['choices']) > 0:
-                return result['choices'][0]['message']['content']
-            
         except Exception as e:
-            print(f"❌ API request failed: {e}")
+            print(f"⚠️ API validation failed: {e}")
+            return True  # Continue anyway
+    
+    def chat_completion(self, messages: List[Dict[str, Any]], image_url: Optional[str] = None) -> Optional[str]:
+        """Send chat completion request with fallback models."""
+        
+        # Try primary model first, then fallbacks
+        models_to_try = [self.model] + [m for m in self.fallback_models if m != self.model]
+        
+        for model in models_to_try:
+            try:
+                result = self._try_model(model, messages, image_url)
+                if result:
+                    if model != self.model:
+                        print(f"✅ Successfully used fallback model: {model}")
+                    return result
+            except Exception as e:
+                print(f"⚠️ Model {model} failed: {e}")
+                continue
+        
+        print("❌ All models failed")
+        return None
+    
+    def _try_model(self, model: str, messages: List[Dict[str, Any]], image_url: Optional[str] = None) -> Optional[str]:
+        """Try a specific model."""
+        headers = {
+            'Authorization': f'Bearer {self.api_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        # Check if model supports multimodal (images)
+        multimodal_models = [
+            'anthropic/claude-3.5-sonnet',
+            'anthropic/claude-3.5-haiku',
+            'anthropic/claude-3-haiku',
+            'anthropic/claude-3-opus',
+            'openai/gpt-4o',
+            'openai/gpt-4o-mini',
+            'openai/chatgpt-4o-latest',
+            'meta-llama/llama-3.2-90b-vision-instruct',
+            'meta-llama/llama-3.2-11b-vision-instruct',
+            'x-ai/grok-2-vision-1212',
+            'openrouter/sonoma-sky-alpha'
+        ]
+        
+        # Prepare messages with image if available and model supports it
+        if image_url and messages and model in multimodal_models:
+            first_message = messages[0]
+            if isinstance(first_message.get('content'), str):
+                first_message['content'] = [
+                    {'type': 'text', 'text': first_message['content']},
+                    {'type': 'image_url', 'image_url': {'url': image_url}}
+                ]
+            print(f"🖼️ Using multimodal mode with image: {image_url[:50]}...")
+        elif image_url:
+            # Add image URL as text description for non-multimodal models
+            first_message = messages[0]
+            if isinstance(first_message.get('content'), str):
+                first_message['content'] += f"\n\n[Screenshot available at: {image_url}]"
+            print(f"📝 Adding image URL as text description (model doesn't support multimodal)")
+        
+        data = {
+            'model': model,
+            'messages': messages,
+            'stream': False
+        }
+        
+        print(f"🤖 Trying model: {model}")
+        
+        response = requests.post(self.base_url, headers=headers, json=data, timeout=30)
+        
+        if response.status_code != 200:
+            error_msg = response.text
+            print(f"❌ API error {response.status_code}: {error_msg}")
+            
+            # Handle specific error cases
+            if response.status_code == 401:
+                print("🔑 Authentication failed - check your API key")
+            elif response.status_code == 429:
+                print("⏳ Rate limit exceeded - trying next model")
+            elif response.status_code == 404:
+                print("🚫 Model not found - trying next model")
+            
+            return None
+            
+        response.raise_for_status()
+        
+        result = response.json()
+        if 'choices' in result and len(result['choices']) > 0:
+            return result['choices'][0]['message']['content']
         
         return None
 
@@ -428,7 +525,7 @@ class WebChatServer:
                 if response:
                     return jsonify({'success': True, 'response': response})
                 else:
-                    return jsonify({'success': False, 'error': 'No response from API'})
+                    return jsonify({'success': False, 'error': 'No response from API. Please check your API key or try again.'})
                     
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)})
@@ -645,6 +742,15 @@ class WebChatServer:
         
         .message em {{
             font-style: italic;
+        }}
+        
+        .error-message {{
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin: 0.5rem 0;
         }}
     </style>
 </head>
@@ -949,12 +1055,12 @@ def main():
         epilog="""
 Examples:
   python3 copyq_chat.py
-  python3 copyq_chat.py --api-key "your-key" --model "openrouter/sonoma-sky-alpha"
+  python3 copyq_chat.py --api-key "your-key" --model "anthropic/claude-3.5-haiku"
   python3 copyq_chat.py --port 8086 --browser "firefox"
 
 Environment Variables:
   OPENROUTER_API_KEY    OpenRouter API key (required)
-  OPENROUTER_MODEL      Model to use (default: openrouter/sonoma-sky-alpha)
+  OPENROUTER_MODEL      Model to use (default: anthropic/claude-3.5-haiku)
   COPYQ_CHAT_BROWSER    Browser to use (default: yandex-browser)
   COPYQ_CHAT_PORT       Port for web server (default: 8085)
         """

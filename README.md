@@ -5,9 +5,13 @@ A collection of AI based CopyQ integration tools for enhanced productivity and A
 ## 🛠️ Available Tools
 
 ### 🤖 [CopyQ Chat Assistant](./PYTHON_CHAT_SETUP.md)
+
 **Purpose**: AI-powered chat interface for analyzing screenshots and text content
 
+![image.png](image_chat.png)
+
 **Key Features**:
+
 - 🖼️ Smart screenshot capture with multiple fallback methods
 - 📝 Intelligent text selection and clipboard integration
 - 🌐 Modern web-based chat interface with markdown support
@@ -15,6 +19,7 @@ A collection of AI based CopyQ integration tools for enhanced productivity and A
 - 📚 Persistent chat history and session management
 
 **Use Cases**:
+
 - Analyze screenshots with AI assistance
 - Get explanations of complex text content
 - Interactive Q&A about visual and textual information
@@ -25,9 +30,13 @@ A collection of AI based CopyQ integration tools for enhanced productivity and A
 ---
 
 ### 🌍 [CopyQ Translation Tool](./CopyQ_Translation_Setup.md)
+
 **Purpose**: Instant translation between English and Russian with popup notifications
 
+![image.png](image_tr.png)
+
 **Key Features**:
+
 - 🔄 Automatic language detection (EN ↔ RU)
 - 📱 Disappearing popup notifications (8-second display)
 - 📋 Seamless clipboard integration
@@ -35,6 +44,7 @@ A collection of AI based CopyQ integration tools for enhanced productivity and A
 - 💡 Context examples for better understanding
 
 **Use Cases**:
+
 - Reading foreign language articles while browsing
 - Understanding technical documentation in other languages
 - Real-time translation in conversations
@@ -48,17 +58,20 @@ A collection of AI based CopyQ integration tools for enhanced productivity and A
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - CopyQ installed and running
 - OpenRouter API key
 - Internet connection for AI services
 
 ### Common Setup Steps
+
 1. **Install Dependencies**: Run `./setup_venv.sh` for Python tools
 2. **Set API Key**: `export OPENROUTER_API_KEY="your-key-here"`
 3. **Configure CopyQ**: Add commands with specified shortcuts
 4. **Test Tools**: Verify functionality with sample content
 
 ### System Requirements
+
 - Linux desktop environment
 - Python 3.8+ (for Chat Assistant)
 - `jq`, `notify-send`, `xclip`, `xsel` (for Translation Tool)
@@ -81,24 +94,28 @@ A collection of AI based CopyQ integration tools for enhanced productivity and A
 ## 🔧 Configuration
 
 ### Environment Variables
+
 - `OPENROUTER_API_KEY`: Required for both tools
 - `OPENROUTER_MODEL`: AI model selection (default: sonoma-sky-alpha)
 - `COPYQ_CHAT_BROWSER`: Preferred browser for chat interface
 - `COPYQ_CHAT_PORT`: Web server port (default: 8085)
 
 ### CopyQ Shortcuts
+
 - **Chat Assistant**: `Ctrl+Shift+I`
 - **Translation Tool**: `Ctrl+Shift+T`
 
 ## 🆘 Support & Troubleshooting
 
 ### Common Issues
+
 1. **Virtual environment not found**: Run `./setup_venv.sh`
 2. **Missing dependencies**: Check individual tool documentation
 3. **API key not set**: Export `OPENROUTER_API_KEY`
 4. **CopyQ not responding**: Ensure CopyQ server is running (`copyq &`)
 
 ### Getting Help
+
 - Check individual tool documentation for detailed troubleshooting
 - Verify all prerequisites are installed
 - Test components individually using provided test commands

@@ -3,11 +3,11 @@
 # CopyQ Translation Script
 # Translates clipboard content between English and Russian using OpenRouter API
 # Shows result as disappearing popup notification
+# Change to the directory where this script is located
+cd "$(dirname "$0")"
 
 # Load environment variables from .env file
-if [ -f ".env" ]; then
-    export $(cat .env | grep -v '^#' | xargs)
-fi
+source .env
 
 # Check if API key is set
 if [ -z "$OPENROUTER_API_KEY" ]; then
