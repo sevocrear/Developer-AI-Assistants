@@ -61,7 +61,7 @@ export COPYQ_CHAT_PORT="8085"
 # Ubuntu/Debian
 sudo apt update
 sudo apt install python3-pip python3-venv python3-tk python3-dev
-sudo apt install gnome-screenshot scrot imagemagick xclip xsel
+sudo apt install gnome-screenshot scrot imagemagick xclip xsel copyq
 
 # For better screenshot support
 sudo apt install python3-mss
@@ -71,22 +71,16 @@ sudo apt install python3-mss
 
 ### 1. Add Command to CopyQ
 
-1. Open CopyQ
-2. Go to **Commands** → **Add** → **Add Command**
-3. Set the following:
+1. **Open CopyQ** and press `F6`
+
+* **Add New Command:**
+  - Click the `+Add` button to add a new command
+  - Set the following properties:
 
 **Name**: `Chat Assistant`
 **Command**: `/path/to/your/copyq_chat_command.sh`
-**Shortcut**: `Ctrl+Shift+I`
+**Global Shortcut**: `Ctrl+Shift+I`
 **Icon**: Choose a chat icon
-
-### 2. Command Configuration
-
-- **Name**: `Chat Assistant`
-- **Command**: `bash /path/to/copyq_chat_command.sh`
-- **Shortcut**: `Ctrl+Shift+I`
-- **Show in menu**: ✅
-- **Show in tray**: ✅
 
 ## Usage
 
@@ -116,6 +110,7 @@ python3 copyq_chat.py --help
 ### Exit Commands
 
 To end your chat session, simply type any of these commands:
+
 - `bye`
 - `exit`
 - `close`
@@ -125,12 +120,12 @@ The application will gracefully shut down and close the browser window.
 
 ### Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `OPENROUTER_API_KEY` | Required | Your OpenRouter API key |
-| `OPENROUTER_MODEL` | `openrouter/sonoma-sky-alpha` | AI model to use |
-| `COPYQ_CHAT_BROWSER` | `yandex-browser` | Preferred browser |
-| `COPYQ_CHAT_PORT` | `8085` | Web server port |
+| Variable               | Default                         | Description             |
+| ---------------------- | ------------------------------- | ----------------------- |
+| `OPENROUTER_API_KEY` | Required                        | Your OpenRouter API key |
+| `OPENROUTER_MODEL`   | `openrouter/sonoma-sky-alpha` | AI model to use         |
+| `COPYQ_CHAT_BROWSER` | `yandex-browser`              | Preferred browser       |
+| `COPYQ_CHAT_PORT`    | `8085`                        | Web server port         |
 
 ## Architecture
 
@@ -165,10 +160,11 @@ Multiple upload services for reliability:
 ### Markdown Support
 
 The chat interface supports full markdown rendering:
+
 - **Headers**: `#`, `##`, `###`
 - **Bold**: `**text**` or `__text__`
 - **Italic**: `*text*` or `_text_`
-- **Code**: `` `code` `` and ``` code blocks ```
+- **Code**: `` `code` `` and ``code blocks``
 - **Lists**: `- item` or `* item`
 - **Links**: `[text](url)`
 
@@ -187,115 +183,41 @@ Options:
   --help             Show help message
 ```
 
-### Environment Variables
-
-Create a `.env` file or set system environment variables:
-
-```bash
-# .env file
-OPENROUTER_API_KEY=your-api-key-here
-OPENROUTER_MODEL=openrouter/sonoma-sky-alpha
-COPYQ_CHAT_BROWSER=yandex-browser
-COPYQ_CHAT_PORT=8085
-```
-
 ## Troubleshooting
 
 ### Common Issues
 
 1. **"Missing required library"**
+
    ```bash
    source venv/bin/activate
    pip install -r requirements.txt
    ```
-
 2. **"Python3 not found"**
+
    ```bash
    sudo apt install python3 python3-pip python3-venv
    ```
-
 3. **"Screenshot failed"**
+
    ```bash
    sudo apt install gnome-screenshot scrot imagemagick xclip xsel
    ```
-
 4. **"API key not set"**
+
    ```bash
    export OPENROUTER_API_KEY="your-key-here"
    ```
-
 5. **"Port already in use"**
+
    ```bash
    export COPYQ_CHAT_PORT="8086"
    ```
-
 6. **"Image upload failed"**
+
    - Check internet connection
    - Try different upload service by modifying the order in `ImageUploader`
-
 7. **"Markdown not rendering"**
+
    - Clear browser cache
    - Check browser console for JavaScript errors
-
-### Debug Mode
-
-Run with verbose output:
-
-```bash
-python3 copyq_chat.py --verbose
-```
-
-### Log Files
-
-- Chat history: `~/.copyq_chat_history/`
-- Screenshots: `~/.copyq_screenshots/`
-
-## Development
-
-### Project Structure
-
-```
-copyq_chat.py              # Main application
-copyq_chat_command.sh      # CopyQ wrapper script
-setup_venv.sh             # Virtual environment setup script
-requirements.txt           # Python dependencies
-PYTHON_CHAT_SETUP.md      # This documentation
-venv/                     # Virtual environment (created by setup)
-```
-
-### Adding Features
-
-1. **New Screenshot Method**: Add to `ScreenshotCapture` class
-2. **New Upload Service**: Add to `ImageUploader` class
-3. **New UI**: Modify `WebChatServer.generate_chat_html()`
-
-### Testing
-
-```bash
-# Activate virtual environment first
-source venv/bin/activate
-
-# Test screenshot capture
-python3 -c "from copyq_chat import ScreenshotCapture; print(ScreenshotCapture.capture_screenshot())"
-
-# Test text capture
-python3 -c "from copyq_chat import TextCapture; print(TextCapture.get_selected_text())"
-
-# Test image upload
-python3 -c "from copyq_chat import ImageUploader; print(ImageUploader.upload_image('/path/to/test/image.png'))"
-
-# Test API
-python3 -c "from copyq_chat import OpenRouterAPI; api = OpenRouterAPI('key', 'model'); print(api.chat_completion([{'role': 'user', 'content': 'Hello'}]))"
-
-# Test complete application
-./copyq_chat_command.sh --help
-```
-
-## Support
-
-For issues and questions:
-1. Check the troubleshooting section
-2. Verify virtual environment is set up correctly (`./setup_venv.sh`)
-3. Check environment variables are set correctly
-4. Test individual components using the testing commands above
-5. Check browser console for JavaScript errors if markdown isn't rendering

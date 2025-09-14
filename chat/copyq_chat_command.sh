@@ -4,7 +4,7 @@
 # Change to the directory where this script is located
 cd "$(dirname "$0")"
 
-source .env
+source ../.env
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 

@@ -3,3 +3,4 @@ __pycache__
 .env
 image
 *.pdf
+node_modules

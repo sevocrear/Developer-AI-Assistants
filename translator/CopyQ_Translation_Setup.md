@@ -37,6 +37,9 @@ sudo apt install libnotify-bin
 
 # Install xclip and xsel for text selection support
 sudo apt install xclip xsel
+
+# Install CopyQ to set up hotkey->command
+sudo apt-get install copyq 
 ```
 
 ### 2. Setup API Key
@@ -45,26 +48,24 @@ Create a `.env` file in the script directory:
 
 ```bash
 # Create .env file
-cat > .env << EOF
-OPENROUTER_API_KEY=your-api-key-here
-EOF
+cp .env.example .env
 ```
 
 Replace `your-api-key-here` with your actual OpenRouter API key.
 
 ### 3. CopyQ Command Setup
 
-1. **Open CopyQ** and go to `File` → `Preferences` → `Commands`
+1. **Open CopyQ** and press `F6`
 2. **Add New Command:**
 
-   - Click the `+` button to add a new command
+   - Click the `+Add` button to add a new command
    - Set the following properties:
 
    **Command Name:** `Translate EN↔RU`
 
    **Command:** `/path/to/your/copyq_translate.sh`
 
-   **Shortcut:** Set a keyboard shortcut (e.g., `Ctrl+Shift+T`)
+   **Global Shortcut:** Set a keyboard shortcut (e.g., `Ctrl+Shift+T`)
 
    **Icon:** Choose a translation icon (optional)
 
@@ -76,29 +77,7 @@ Replace `your-api-key-here` with your actual OpenRouter API key.
    - **Automatic:** Check this if you want automatic translation
    - **Show in menu:** Check this to show in context menu
 
-### 3. Alternative: Manual Command Creation
-
-If you prefer to create the command directly in CopyQ:
-
-1. Open CopyQ
-2. Go to `File` → `Preferences` → `Commands`
-3. Click `+` to add new command
-4. Use this configuration:
-
-```json
-{
-    "name": "Translate EN↔RU",
-    "command": "/path/to/your/copyq_translate.sh",
-    "shortcut": "Ctrl+Shift+T",
-    "description": "Translate clipboard content between English and Russian",
-    "input": "text/plain",
-    "output": "text/plain",
-    "automatic": false,
-    "showInMenu": true
-}
-```
-
-## Usage
+### Usage
 
 ### Quick Translation
 
@@ -156,45 +135,46 @@ Modify the prompt in the script to support additional languages:
 ### Common Issues
 
 1. **"jq: command not found"**
+
    ```bash
    sudo apt install jq
    ```
-
 2. **"notify-send: command not found"**
+
    ```bash
    sudo apt install libnotify-bin
    ```
-
 3. **"xclip: command not found" or "xsel: command not found"**
+
    ```bash
    sudo apt install xclip xsel
    ```
-
 4. **"OPENROUTER_API_KEY not set"**
+
    - Create `.env` file with your API key
    - Or export: `export OPENROUTER_API_KEY="your-key"`
-
 5. **Permission denied**
+
    ```bash
    chmod +x /path/to/your/copyq_translate.sh
    ```
-
 6. **"Cannot connect to server! Start CopyQ server first"**
+
    ```bash
    copyq &
    ```
-
 7. **"Clipboard is empty" when text is selected**
+
    - Script prioritizes selected text over clipboard
    - No need to copy text first! Just select and press Ctrl+Shift+T
    - Make sure CopyQ server is running: `copyq &`
-
 8. **Shortcut not working**
+
    - Ensure CopyQ server is running
    - Check "On global shortcut" is enabled in CopyQ Commands
    - Verify script path is correct and executable
-
 9. **API errors**
+
    - Check internet connection
    - Verify API key is valid in `.env` file
    - Check API quota limits
@@ -202,6 +182,7 @@ Modify the prompt in the script to support additional languages:
 ### Testing the Script
 
 Test the script manually:
+
 ```bash
 /path/to/your/copyq_translate.sh
 ```
@@ -219,23 +200,3 @@ Test the script manually:
 - **Model:** nvidia/nemotron-nano-9b-v2:free
 - **Endpoint:** https://openrouter.ai/api/v1/chat/completions
 - **Rate Limits:** Check OpenRouter documentation for current limits
-
-## Customization
-
-### Change Notification Duration
-Edit the script and modify the `-t` parameter:
-```bash
-notify-send -t 3000 "Translation Result" "$CLEAN_TRANSLATION"
-```
-
-### Change API Model
-Edit the script and modify the model parameter:
-```bash
-"model": "nvidia/nemotron-nano-9b-v2:free",
-```
-
-### Add More Languages
-Modify the prompt in the script:
-```bash
-"content": "Translate to Russian if input is English/other language, translate to English if input is Russian, translate to Spanish if input is German. Word: $CLIPBOARD_TEXT"
-```

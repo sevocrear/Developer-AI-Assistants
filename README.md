@@ -4,7 +4,7 @@ A collection of AI based CopyQ integration tools for enhanced productivity and A
 
 ## 🛠️ Available Tools
 
-### 🤖 [CopyQ Chat Assistant](./PYTHON_CHAT_SETUP.md)
+### 🤖 [CopyQ Chat Assistant](./CopyQ_Chat_Setup.md)
 
 **Purpose**: AI-powered chat interface for analyzing screenshots and text content
 
@@ -25,7 +25,11 @@ A collection of AI based CopyQ integration tools for enhanced productivity and A
 - Interactive Q&A about visual and textual information
 - Research assistance with image and text analysis
 
-**Quick Start**: Press `Ctrl+Shift+I` after selecting text or taking a screenshot
+**Quick Start**: 
+
+1. Set up [the ai-chat command](./CopyQ_Chat_Setup.md)
+
+2. Press `Ctrl+Shift+I` after selecting text.
 
 ---
 
@@ -51,7 +55,11 @@ A collection of AI based CopyQ integration tools for enhanced productivity and A
 - Language learning with context examples
 - Quick translation for content creation
 
-**Quick Start**: Press `Ctrl+Shift+T` after selecting any text
+**Quick Start**: 
+
+1. Set up [the translation command](./CopyQ_Translation_Setup.md)
+
+2. Press `Ctrl+Shift+T` after selecting text.
 
 ---
 

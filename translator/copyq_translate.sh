@@ -7,7 +7,7 @@
 cd "$(dirname "$0")"
 
 # Load environment variables from .env file
-source .env
+source ../.env
 
 # Check if API key is set
 if [ -z "$OPENROUTER_API_KEY" ]; then
@@ -95,7 +95,7 @@ notify-send -t 8000 "Translation" "$MAIN_TRANSLATION"
 
 # For full translation, use zenity to show in a dialog box
 FULL_TRANSLATION=$(echo "$CLEAN_TRANSLATION" | head -n 20)
-zenity --info --title="Full Translation" --text="$FULL_TRANSLATION" --width=600 --height=400 &
+zenity --info --title="Full Translation:" --text="$FULL_TRANSLATION" --width=600 --height=400 &
 
 # Also copy the translation to clipboard
 echo "$TRANSLATION" | copyq add -
