@@ -4,7 +4,7 @@ A collection of AI based CopyQ integration tools for enhanced productivity and A
 
 ## 🛠️ Available Tools
 
-### 🤖 [CopyQ Chat Assistant](./CopyQ_Chat_Setup.md)
+### 🤖 [CopyQ Chat Assistant](./chat/CopyQ_Chat_Setup.md)
 
 **Purpose**: AI-powered chat interface for analyzing screenshots and text content
 
@@ -27,13 +27,13 @@ A collection of AI based CopyQ integration tools for enhanced productivity and A
 
 **Quick Start**: 
 
-1. Set up [the ai-chat command](./CopyQ_Chat_Setup.md)
+1. Set up [the ai-chat command](./chat/CopyQ_Chat_Setup.md)
 
 2. Press `Ctrl+Shift+I` after selecting text.
 
 ---
 
-### 🌍 [CopyQ Translation Tool](./CopyQ_Translation_Setup.md)
+### 🌍 [CopyQ Translation Tool](./translator/CopyQ_Translation_Setup.md)
 
 **Purpose**: Instant translation between English and Russian with popup notifications
 
@@ -57,7 +57,7 @@ A collection of AI based CopyQ integration tools for enhanced productivity and A
 
 **Quick Start**: 
 
-1. Set up [the translation command](./CopyQ_Translation_Setup.md)
+1. Set up [the translation command](./translator/CopyQ_Translation_Setup.md)
 
 2. Press `Ctrl+Shift+T` after selecting text.
 
